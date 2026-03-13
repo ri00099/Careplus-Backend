@@ -460,58 +460,30 @@ const verifyStripe = async (req, res) => {
 let storedOTP = "";
 
 const sendOTP = async (req, res) => {
-  const { email } = req.body;
-  storedOTP = Math.floor(100000 + Math.random() * 900000);
+  try {
+    const { email } = req.body;
+    const storedOTP = Math.floor(100000 + Math.random() * 900000);
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-  await transporter.sendMail({
-    from: `"CarePlus Hospital" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Verify Your Email - CarePlus Hospital",
-    html: `
-  <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
-    
-    <div style="max-width:500px; margin:auto; background:white; padding:30px; border-radius:10px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
-      
-      <h2 style="color:#2563eb; margin-bottom:10px;">CarePlus Hospital</h2>
-      <p style="color:#555; font-size:15px;">Email Verification</p>
+    await transporter.sendMail({
+      from: `"CarePlus Hospital" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify Your Email - CarePlus Hospital",
+      html: `...your html...`,
+    });
 
-      <p style="color:#444; margin-top:20px;">
-        Use the following One-Time Password (OTP) to verify your email address.
-      </p>
-
-      <div style="font-size:32px; letter-spacing:6px; font-weight:bold; color:#111; background:#f1f5f9; padding:15px 20px; display:inline-block; margin:20px 0; border-radius:8px;">
-        ${storedOTP}
-      </div>
-
-      <p style="color:#666; font-size:14px;">
-        This OTP will expire in <b>5 minutes</b>.
-      </p>
-
-      <p style="color:#888; font-size:13px; margin-top:25px;">
-        If you did not request this verification, please ignore this email.
-      </p>
-
-      <hr style="margin:25px 0; border:none; border-top:1px solid #eee;" />
-
-      <p style="font-size:12px; color:#999;">
-        © ${new Date().getFullYear()} CarePlus Hospital. All rights reserved.
-      </p>
-
-    </div>
-
-  </div>
-  `,
-  });
-
-  res.json({ success: true, message: "OTP sent" });
+    res.json({ success: true, message: "OTP sent" });
+  } catch (error) {
+    console.error("Send OTP error:", error.message);
+    res.status(500).json({ success: false, message: "Failed to send OTP" });
+  }
 };
 
 const verifyOTP = (req, res) => {
