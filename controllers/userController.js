@@ -466,18 +466,18 @@ const sendOTP = async (req, res) => {
   try {
     // Create transporter using SMTP
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,       // e.g., "smtp.gmail.com" or your SMTP provider
-      port: Number(process.env.SMTP_PORT),       // 465 for SSL, 587 for TLS
-      secure: process.env.SMTP_SECURE === "true", // true for 465, false for 587
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
       auth: {
-        user: process.env.SMTP_USER,     // your email
-        pass: process.env.SMTP_PASS,     // App Password or SMTP password
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
     // Send the mail
     await transporter.sendMail({
-      from: `"CarePlus Hospital" <${process.env.SMTP_USER}>`,
+      from: `"CarePlus Hospital" <ri00089g@gmail.com>`,
       to: email,
       subject: "Verify Your Email - CarePlus Hospital",
       html: `
@@ -576,5 +576,5 @@ export {
   sendOTP,
   verifyOTP,
   deleteAppointment,
-  contact
+  contact,
 };
