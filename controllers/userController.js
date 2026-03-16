@@ -9,6 +9,7 @@ import stripe from "stripe";
 import razorpay from "razorpay";
 import nodemailer from "nodemailer";
 import { transporter } from "../config/email.js";
+import SibApiV3Sdk from "sib-api-v3-sdk";
 
 // Gateway Initialize
 const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
@@ -464,6 +465,56 @@ const sendOTP = async (req, res) => {
   storedOTP = Math.floor(100000 + Math.random() * 900000);
 
   try {
+    const client = SibApiV3Sdk.ApiClient.instance;
+    const apiKey = client.authentications["api-key"];
+    apiKey.apiKey = process.env.BREVO_API_KEY;
+
+    const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+
+    await tranEmailApi.sendTransacEmail({
+      sender: { email: "ri00089g@gmail.com", name: "CarePlus Hospital" },
+      to: [{ email: email }],
+      subject: "Verify Your Email - CarePlus Hospital",
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
+          <div style="max-width:500px; margin:auto; background:white; padding:30px; border-radius:10px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color:#2563eb; margin-bottom:10px;">CarePlus Hospital</h2>
+            <p style="color:#555; font-size:15px;">Email Verification</p>
+            <p style="color:#444; margin-top:20px;">
+              Use the following One-Time Password (OTP) to verify your email address.
+            </p>
+            <div style="font-size:32px; letter-spacing:6px; font-weight:bold; color:#111; background:#f1f5f9; padding:15px 20px; display:inline-block; margin:20px 0; border-radius:8px;">
+              ${storedOTP}
+            </div>
+            <p style="color:#666; font-size:14px;">
+              This OTP will expire in <b>5 minutes</b>.
+            </p>
+            <p style="color:#888; font-size:13px; margin-top:25px;">
+              If you did not request this verification, please ignore this email.
+            </p>
+            <hr style="margin:25px 0; border:none; border-top:1px solid #eee;" />
+            <p style="font-size:12px; color:#999;">
+              © ${new Date().getFullYear()} CarePlus Hospital. All rights reserved.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+
+    res.json({ success: true, message: "OTP sent" });
+
+  } catch (error) {
+    console.error("Send OTP error:", error);
+    res.status(500).json({ success: false, message: "Failed to send OTP" });
+  }
+};
+
+
+const sendOTPP = async (req, res) => {
+  const { email } = req.body;
+  storedOTP = Math.floor(100000 + Math.random() * 900000);
+
+  try {
     // Create transporter using SMTP
     const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
@@ -522,6 +573,7 @@ const verifyOTP = (req, res) => {
     res.json({ success: false, message: "Invalid OTP" });
   }
 };
+
 
 const contact = async (req, res) => {
   try {
