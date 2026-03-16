@@ -461,7 +461,7 @@ let storedOTP = "";
 
 const sendOTP = async (req, res) => {
   const { email } = req.body;
-  const storedOTP = Math.floor(100000 + Math.random() * 900000);
+  storedOTP = Math.floor(100000 + Math.random() * 900000);
 
   try {
     // Create transporter using SMTP
